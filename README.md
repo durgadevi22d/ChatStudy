@@ -77,36 +77,61 @@ Client-server chat applications are foundational to real-time communication over
 ### Client:
 ```
 import socket
-s=socket.socket()
-s.bind(('localhost',8000))
-s.listen(5)
-c,addr=s.accept()
-size=int(input("Enter number of frames to send: "))
-l=list(range(size))
-s=int(input("Enter Window Size : "))
-st=0
-i=0
+
+SERVER_HOST = '127.0.0.1'  
+SERVER_PORT = 12345        
+BUFFER_SIZE = 1024          
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((SERVER_HOST, SERVER_PORT))
+
+print(f"Connected to server at {SERVER_HOST}:{SERVER_PORT}")
+
 while True:
-    while(i<len(l)):
-        st+=s
-        c.send(str(l[i:st]).encode())
-        ack=c.recv(1024).decode()
-        if ack:
-         print(ack)
-         i+=s
+
+    message_to_send = input("Client: ")
+    client_socket.send(message_to_send.encode())
+
+    message = client_socket.recv(BUFFER_SIZE).decode()
+    if not message:
+    print(f"Server: {message}")
+
+client_socket.close()
 ```
 ### Server:
 ```
 import socket
-s=socket.socket()
-s.connect(('localhost',8000))
+
+SERVER_HOST = '127.0.0.1'  
+SERVER_PORT = 12345        
+BUFFER_SIZE = 1024       
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((SERVER_HOST, SERVER_PORT))
+server_socket.listen(1)  
+
+print(f"[*] Listening on {SERVER_HOST}:{SERVER_PORT}")
+
+client_socket, client_address = server_socket.accept()
+print(f"[+] {client_address} connected.")
+
 while True:
-    print(s.recv(1024).decode())
-    s.send("acknowledgement received from the server".encode())
-    
+    message = client_socket.recv(BUFFER_SIZE).decode()
+    if not message:
+    print(f"Client: {message}")
+
+    message_to_send = input("Server: ")
+    client_socket.send(message_to_send.encode())
+
+client_socket.close()
+server_socket.close()
 ```
 ## Output:
-![cn exp 1b op](https://github.com/user-attachments/assets/361b6baa-80df-47d4-ba90-2335d87c6a91)
+### Client:
+![image](https://github.com/user-attachments/assets/cb530a24-8933-4807-a4da-ef5512db5fd1)
+
+### Server:
+![image](https://github.com/user-attachments/assets/44512479-ef97-41c0-8bd0-b89b25d5a356)
 
 
 ## Result:
